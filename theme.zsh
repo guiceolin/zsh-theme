@@ -75,7 +75,7 @@ function prompt_guiceolin_setup {
   # Define prompts.
   PROMPT="${_prompt_guiceolin_colors[3]}%n%f at ${_prompt_guiceolin_colors[2]}%m%f in ${_prompt_guiceolin_colors[5]}%~%f "'${vcs_info_msg_0_}'"
 $ "
-  RPROMPT="%F{red}[$(ruby_version)]"
+  RPROMPT="%F{red}[${ruby_version}]"
 }
 
 prompt_guiceolin_setup "$@"
