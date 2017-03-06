@@ -20,10 +20,14 @@ function _update_ruby_version()
   fi
 }
 
+precmd(){
+  vcs_info 'prompt'
+}
+
 function prompt_guiceolin_setup {
   setopt LOCAL_OPTIONS
   unsetopt XTRACE KSH_ARRAYS
-  prompt_opts=(cr percent subst)
+  setopt prompt_subst
 
   # Load required functions.
   autoload -Uz vcs_info
@@ -73,7 +77,8 @@ function prompt_guiceolin_setup {
   zstyle ':vcs_info:*:prompt:*' nvcsformats   ""
 
   # Define prompts.
-  PROMPT="${_prompt_guiceolin_colors[3]}%n%f at ${_prompt_guiceolin_colors[2]}%m%f in ${_prompt_guiceolin_colors[5]}%~%f "'${vcs_info_msg_0_}'"
+PROMPT="
+${_prompt_guiceolin_colors[3]}%n%f at ${_prompt_guiceolin_colors[2]}%m%f in ${_prompt_guiceolin_colors[5]}%~%f "'${vcs_info_msg_0_}'"
 $ "
   RPROMPT="%F{red}[${ruby_version}]"
 }
