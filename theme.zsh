@@ -12,25 +12,11 @@
 #   http://i.imgur.com/HyRvv.png
 #
 
-function prompt_guiceolin_precmd {
-  # Check for untracked files or updated submodules since vcs_info does not.
-  if [[ -n $(git ls-files --other --exclude-standard 2> /dev/null) ]]; then
-    branch_format="(${_prompt_guiceolin_colors[1]}%b%f%u%c${_prompt_guiceolin_colors[4]}●%f)"
-  else
-    branch_format="(${_prompt_guiceolin_colors[1]}%b%f%u%c)"
-  fi
-
-  zstyle ':vcs_info:*:prompt:*' formats "${branch_format}"
-
-  vcs_info 'prompt'
-
-  if (( $+functions[python-info] )); then
-    python-info
-  fi
-
-# Get ruby information
-  if (( $+functions[ruby-info] )); then
-    ruby-info
+function _update_ruby_version()
+{
+  typeset -g ruby_version=''
+  if which rbenv &> /dev/null; then
+    ruby_version="$(rbenv version | sed -e "s/ (set.*$//")"
   fi
 }
 
@@ -40,11 +26,11 @@ function prompt_guiceolin_setup {
   prompt_opts=(cr percent subst)
 
   # Load required functions.
-  autoload -Uz add-zsh-hook
   autoload -Uz vcs_info
 
-  # Add hook for calling vcs_info before each command.
-  add-zsh-hook precmd prompt_guiceolin_precmd
+  # Update ruby version on pwd change
+  chpwd_functions+=(_update_ruby_version)
+  _update_ruby_version()
 
   # Use extended color pallete if available.
   if [[ $TERM = *256color* || $TERM = *rxvt* ]]; then
@@ -79,23 +65,17 @@ function prompt_guiceolin_setup {
 
   # Set vcs_info parameters.
   zstyle ':vcs_info:*' enable bzr git hg svn
-  zstyle ':vcs_info:*:prompt:*' check-for-changes true
+#  zstyle ':vcs_info:*:prompt:*' check-for-changes true
   zstyle ':vcs_info:*:prompt:*' unstagedstr "${unstaged_format}"
   zstyle ':vcs_info:*:prompt:*' stagedstr "${staged_format}"
   zstyle ':vcs_info:*:prompt:*' actionformats "${branch_format}${action_format}"
   zstyle ':vcs_info:*:prompt:*' formats "${branch_format}"
   zstyle ':vcs_info:*:prompt:*' nvcsformats   ""
 
-  # Set python-info parameters.
-  zstyle ':prezto:module:python:info:virtualenv' format '(%v)'
-  zstyle ':prezto:module:ruby:info:version' format '[ %v ]'
-
-
   # Define prompts.
-  PROMPT="
-${_prompt_guiceolin_colors[3]}%n%f at ${_prompt_guiceolin_colors[2]}%m%f in ${_prompt_guiceolin_colors[5]}%~%f "'${vcs_info_msg_0_}'"
-"'$python_info[virtualenv]'"$ "
-  RPROMPT='%F{red}${ruby_info[version]}'
+  PROMPT="${_prompt_guiceolin_colors[3]}%n%f at ${_prompt_guiceolin_colors[2]}%m%f in ${_prompt_guiceolin_colors[5]}%~%f "'${vcs_info_msg_0_}'"
+$ "
+  RPROMPT="%F{red}[$(ruby_version)]"
 }
 
 prompt_guiceolin_setup "$@"
